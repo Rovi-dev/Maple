@@ -198,6 +198,136 @@ June 2, 2026
 - [ ] Implement database queries in each route
 - [ ] Build browser-side JavaScript for map and search (`public/js/map.js`, `public/js/list-map.js`)
 - [ ] Add CSS styling (`public/css/style.css`)
+
+---
+
+## Session 4 — Tailwind & Bootstrap Installation
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **Installed CSS Frameworks**
+- **Packages installed**: `tailwindcss`, `postcss`, `autoprefixer`, `bootstrap`
+
+**Why these?**
+- **Tailwind CSS** — utility-first CSS framework. Use classes like `flex`, `justify-center`, `bg-blue-500` instead of writing custom CSS
+- **PostCSS** — CSS processor that handles Tailwind directives
+- **Autoprefixer** — adds browser prefixes (`-webkit-`, `-moz-`) automatically
+- **Bootstrap** — optional, included but you'll mainly use Tailwind
+
+#### 2. **Configuration Files Created**
+
+**`tailwind.config.js`**:
+```javascript
+module.exports = {
+  content: [
+    './views/**/*.ejs',    // scan EJS templates
+    './public/**/*.html',  // scan HTML files
+  ],
+  theme: {
+    extend: {},            // customize theme here
+  },
+  plugins: [],
+}
+```
+
+**Why**: Tells Tailwind where your code is, so it only includes CSS you actually use (keeps bundle small).
+
+**`postcss.config.js`**:
+```javascript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+#### 3. **CSS Input File**
+- **`public/css/input.css`** — Tailwind directives:
+  ```css
+  @tailwind base;       /* reset browser defaults */
+  @tailwind components; /* pre-built components */
+  @tailwind utilities;  /* utility classes (most used) */
+  ```
+
+#### 4. **NPM Scripts Updated**
+```json
+"build:css": "npx tailwindcss -i ./public/css/input.css -o ./public/css/style.css",
+"watch:css": "npx tailwindcss -i ./public/css/input.css -o ./public/css/style.css --watch"
+```
+
+- `npm run build:css` — one-time compile
+- `npm run watch:css` — auto-recompile on file save
+
+---
+
+## How to Use Tailwind in Your Templates
+
+**Option A: Build Process (Recommended)**
+```bash
+npm run watch:css    # terminal 1: auto-compiles CSS when you save input.css
+npm run dev          # terminal 2: runs Express server
+```
+
+**Option B: CDN (Simpler for now)**
+In your EJS templates, add this in the `<head>`:
+```html
+<script src="https://cdn.tailwindcss.com"></script>
+```
+No build process needed — Tailwind loads from CDN. Great for rapid prototyping!
+
+**Example Tailwind usage**:
+```html
+<div class="flex justify-center items-center min-h-screen bg-gradient-to-b from-blue-500 to-blue-600">
+  <button class="px-6 py-3 bg-white text-blue-600 font-bold rounded-lg hover:shadow-lg transition">
+    Save Place
+  </button>
+</div>
+```
+
+---
+
+## Key Tailwind Concepts
+
+1. **Utility-first**: Classes are your CSS
+   - `flex` — `display: flex`
+   - `justify-center` — `justify-content: center`
+   - `bg-blue-500` — `background-color: #3b82f6`
+
+2. **Responsive**: Add breakpoints
+   - `md:text-lg` — only on medium+ screens
+   - `lg:flex` — flex layout on large+ screens
+
+3. **Hover/Focus states**: built-in
+   - `hover:bg-blue-600` — on hover
+   - `focus:ring-2` — on focus
+
+4. **Dark mode**: prefix classes
+   - `dark:bg-gray-900` — in dark mode
+
+5. **Customization**: in `tailwind.config.js`
+   ```javascript
+   theme: {
+     extend: {
+       colors: { brand: '#ff6b35' }
+     }
+   }
+   ```
+   Then use: `<div class="bg-brand">`
+
+---
+
+## Next Session
+
+- [ ] Create view templates with Tailwind classes
+- [ ] Choose CDN vs Build process
+- [ ] Create `.env` file
+- [ ] Create `db.js` for PostgreSQL connection
+
+---
 - [ ] Update `.gitignore` to exclude secrets and dependencies
 
 ---

@@ -133,7 +133,64 @@ When two branches have different changes to the same line, git can't auto-merge.
 
 ---
 
-## Next Steps (Not Yet Implemented)
+## Session 3 — Project Folder Structure Setup
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **Created Directory Structure**
+- **Directories created**:
+  ```
+  Maple/
+  ├── views/
+  │   └── partials/
+  ├── public/
+  │   ├── css/
+  │   └── js/
+  ```
+
+**Why this structure?**
+- `views/` — EJS templates (server renders HTML here)
+- `views/partials/` — reusable template fragments (header, footer, nav)
+- `public/` — static files served directly to browser (CSS, client-side JS, images)
+- `public/css/` — stylesheets
+- `public/js/` — browser-side JavaScript (map interaction, search, form handling)
+
+**Git tracking**: Added `.gitkeep` files in each directory so git tracks empty folders (git normally ignores empty directories).
+
+**What you'll create**:
+- `views/partials/header.ejs` — HTML `<head>` + navigation
+- `views/partials/footer.ejs` — closing tags
+- `views/index.ejs` — Find page (map + search)
+- `views/list.ejs` — Places to Go & Visited pages (reused with different data)
+- `public/css/style.css` — all styling
+- `public/js/map.js` — search + save logic
+- `public/js/list-map.js` — plots pins on list pages
+
+---
+
+## Key Concepts - File Organization
+
+1. **MVC-ish Pattern** (Model-View-Controller-inspired):
+   - `index.js` = Controller (routes, logic)
+   - `views/` = View (HTML templates)
+   - `db.js` (coming next) = Model (data layer)
+
+2. **Public vs. Views**:
+   - `/public` is served as-is to the browser (CSS, images, JS files)
+   - `/views` are templates that Node processes on the server, then sends HTML
+
+3. **Express static serving**:
+   ```javascript
+   app.use(express.static('public'));
+   // Now the browser can fetch /css/style.css directly
+   ```
+
+---
+
+
 
 - [ ] Create `.env` file with database credentials
 - [ ] Create `db.js` to connect to PostgreSQL

@@ -607,24 +607,191 @@ Visit `http://localhost:3000` — you should see:
 
 ---
 
-## Next Steps
+---
 
-- [ ] Create `views/pages/list.ejs` (Places to Go & Visited pages)
-- [ ] Create `/public/js/map.js` (search + map + save logic)
-- [ ] Create `/public/js/list-map.js` (plots pins on list pages)
-- [ ] Create `.env` and `db.js` (database layer)
+## Session 7 — Major Pivot: Travel Planner & Cost Comparison Tool
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **Project Vision Updated — From Places Tracker to Smart Travel Planner**
+
+**Original concept**: Save places you want to visit, categorize them as "To Go" or "Visited".
+
+**New concept**: A **cost comparison and travel planning tool** that helps users find the **cheapest way to travel** from their home to any UK destination.
+
+**Example flow**:
+- User sets home location: **Eastleigh, SO50 9EA**
+- User wants to visit: **Lainston House Hotel, Winchester** (11 miles away)
+- App calculates ALL travel options:
+  - 🚗 **Car**: £1.50–£2.00 (fuel cost for 11 miles)
+  - 🚂 **Train**: £12.50 (live Trainline API)
+  - 🚌 **Bus**: £4.20 (TfL or National Express)
+  - 🚕 **Uber**: £18.00 (Uber fare estimate API)
+  - 🏆 **Cheapest**: Bus (£4.20)
+
+#### 2. **Updated `Maple.md` Project Description**
+
+**Old pages**:
+- Find, Places to Go, Visited
+
+**New pages**:
+- **Setup/Home** (`/`) — Set home postcode once
+- **Plan a Trip** (`/plan`) — Search destination, see all travel costs
+- **My Trips** (`/trips`) — saved trip plans with cost comparisons
+- **Trip History** (`/history`) — completed trips for reference
+
+#### 3. **New Technology Stack Added**
+
+Expanded from basic places tracker to comprehensive travel planner:
+
+**APIs integrated**:
+- **Google Maps Distance Matrix** — precise distance & car duration
+- **Trainline API** — live UK train prices and schedules
+- **TfL & Bus APIs** — bus routes and fares
+- **Uber API** — ride-sharing fare estimates
+- **Nominatim** — location search (already had)
+- **OpenWeather** (optional) — weather along route
+
+**Why these APIs?**
+- **Google Maps**: Accurate distances and driving times for fuel cost calculation
+- **Trainline**: Most UK rail tickets booked here; provides live pricing
+- **TfL/Bus APIs**: Public transport data for cost and duration
+- **Uber**: Real-time ride-sharing prices
+- **Nominatim**: Free UK location search (no API key needed)
+
+#### 4. **Database Schema Evolution**
+
+**Old schema**: Simple places table with status (want/visited)
+
+**New schema will include**:
+```sql
+-- User profile (home location set once)
+users:
+  - id, email, home_postcode, home_lat, home_lon, created_at
+
+-- Trip plans
+trips:
+  - id, user_id, destination, dest_lat, dest_lon, distance_miles
+  - status (planned/completed/cancelled)
+  - created_at, completed_at
+
+-- Trip costs (snapshot of all options at booking time)
+trip_costs:
+  - id, trip_id
+  - car_fuel_cost, train_cost, train_duration, train_provider
+  - bus_cost, bus_duration, bus_provider
+  - uber_cost, uber_duration
+  - cheapest_option, cheapest_cost
+  - created_at (time costs were calculated)
+```
+
+**Why a snapshot?** Prices change constantly. We capture all options at planning time so the user can reference "when I planned this, bus was cheapest at £4.20".
+
+#### 5. **Key Learning: API Orchestration**
+
+This project teaches **backend API orchestration** — a real-world skill:
+
+```javascript
+// When user plans a trip:
+1. Geocode destination (Nominatim)
+2. Calculate distance (Google Maps Distance Matrix)
+3. Estimate fuel cost (distance × £0.14/mile)
+4. Fetch train prices (Trainline)
+5. Fetch bus routes (TfL)
+6. Estimate Uber fare (Uber API)
+7. Compare all & return cheapest
+8. Save all options to database for reference
+```
+
+This is **exactly** what real travel/logistics apps do (Google Flights, Skyscanner, Wanderu).
 
 ---
 
-## Key Concepts Learned
+## Architecture Overview
 
-1. **Partials** — reusable template fragments (head, footer, nav)
-2. **Pages vs Partials** — pages are full templates, partials are includes
-3. **EJS include syntax** — `<%- include('path/to/file') %>` merges templates
-4. **Route parameters** — `res.render('template', { data })` passes data to templates
-5. **Relative paths** — `../` goes up one level, `./` is current level
+```
+┌─────────────────┐
+│   Browser (UI)  │
+│  - Home setup   │
+│  - Trip search  │
+│  - Cost display │
+└────────┬────────┘
+         │ HTTPS requests
+         ↓
+┌─────────────────────────────────────┐
+│  Express Server (Orchestration)     │
+│                                     │
+│  Route: /api/plan                   │
+│  ├─ Call Nominatim → destination   │
+│  ├─ Call Google Maps → distance     │
+│  ├─ Call Trainline → train prices   │
+│  ├─ Call TfL/Bus → bus options      │
+│  ├─ Call Uber → ride estimate       │
+│  ├─ Calculate fuel cost             │
+│  └─ Return all options ranked       │
+└────────┬────────────────────────────┘
+         │
+         ├─→ Nominatim (free)
+         ├─→ Google Maps API (paid, ~$5/1000)
+         ├─→ Trainline (free or subscription)
+         ├─→ TfL API (free)
+         ├─→ Uber API (free tier)
+         └─→ PostgreSQL (user data & trip history)
+```
 
 ---
+
+## Implementation Phases
+
+**Phase 1 (Current)**: Core structure
+- [ ] Home location setup (store in DB)
+- [ ] Trip search with Nominatim
+- [ ] UI for trip planner
+
+**Phase 2**: Cost calculations
+- [ ] Google Maps Distance Matrix integration
+- [ ] Fuel cost estimation (distance × rate)
+- [ ] Trainline API integration
+- [ ] TfL/Bus API integration
+- [ ] Uber fare estimation
+
+**Phase 3**: User features
+- [ ] Save trip plans
+- [ ] Trip history & analytics
+- [ ] Favorite routes
+- [ ] Fare price alerts (notify when train prices drop)
+
+**Phase 4**: Production
+- [ ] User authentication (sign up / login)
+- [ ] Mobile app (React Native or PWA)
+- [ ] Real-time notifications
+- [ ] Integration with booking platforms
+
+---
+
+## Key Concepts Introduced
+
+1. **API Orchestration** — backend calls multiple APIs and combines results
+2. **Cost Snapshots** — store prices at time of planning (not live, for reference)
+3. **Multi-modal Routing** — showing all transportation options (car, train, bus, ride)
+4. **Geolocation** — storing user home location for repeated use
+5. **Third-party Integrations** — real-world experience working with external APIs
+
+---
+
+## Next Session
+
+- [ ] Update index.ejs to be home setup (postcode input)
+- [ ] Create pages/list.ejs for trip results/history
+- [ ] Build plan page with multi-modal display
+- [ ] Start API integration (Nominatim, then Google Maps)
+
+---
+
+
 
 
 

@@ -1,10 +1,18 @@
-# Building a Places Tracker — Full Beginner Guide
+# Building Maple — A Smart Travel Planner & Cost Comparison Tool
 
-A step-by-step guide to building a personal "places" web app: search for somewhere in the UK on a map, save it, and organise your saved spots into **Places to Go** and **Visited**.
+A comprehensive travel planning web app: set your home location (postcode), search for destinations across the UK, and get **real-time cost comparisons** for every viable travel option. Compare costs for car (fuel), train, bus, and ride-sharing (Uber) to make the best travel decision.
 
-**Stack:** Node.js · Express · EJS · PostgreSQL · Leaflet (map) · Nominatim (search)
+**Core Vision:** Users input their home location once. Then, whenever they plan a trip to anywhere in the UK, Maple shows them:
+- **Distance & estimated travel time**
+- **Car:** estimated fuel cost + parking (if available)
+- **Train:** live prices from Trainline API
+- **Bus:** route options and fares
+- **Ride-sharing:** Uber fare estimates
+- **Overall cheapest option** highlighted
 
-This guide assumes you've barely touched a terminal. Every command and every file is included in full. Read the short "why" before each step so you understand what you're doing, not just copying.
+Save trips to revisit cost comparisons, mark as completed, build a travel history.
+
+**Stack:** Node.js · Express · EJS · PostgreSQL · Leaflet (map) · Nominatim (location search) · Trainline API · TfL API · Uber API (fare estimates) · Google Maps Distance Matrix API
 
 ---
 
@@ -12,91 +20,115 @@ This guide assumes you've barely touched a terminal. Every command and every fil
 
 1. [What you're building](#1-what-youre-building)
 2. [How the pieces fit together](#2-how-the-pieces-fit-together)
-3. [Install the tools](#3-install-the-tools)
-4. [Create the project](#4-create-the-project)
-5. [Set up the database](#5-set-up-the-database)
-6. [Connect Node to PostgreSQL](#6-connect-node-to-postgresql)
-7. [The server (all the routes)](#7-the-server-all-the-routes)
-8. [The page templates (EJS)](#8-the-page-templates-ejs)
-9. [The map and search (browser JavaScript)](#9-the-map-and-search-browser-javascript)
-10. [Styling](#10-styling)
-11. [Run it](#11-run-it)
-12. [Troubleshooting](#12-troubleshooting)
-13. [Where to go next](#13-where-to-go-next)
+3. [Required APIs and Data Sources](#3-required-apis-and-data-sources)
+4. [Install the tools](#4-install-the-tools)
+5. [Create the project](#5-create-the-project)
+6. [Set up the database](#6-set-up-the-database)
+7. [Connect Node to PostgreSQL](#7-connect-node-to-postgresql)
+8. [The server (all the routes)](#8-the-server-all-the-routes)
+9. [The page templates (EJS)](#9-the-page-templates-ejs)
+10. [The map and search (browser JavaScript)](#10-the-map-and-search-browser-javascript)
+11. [Travel Cost Calculation Engine](#11-travel-cost-calculation-engine)
+12. [Styling](#12-styling)
+13. [Run it](#13-run-it)
+14. [Troubleshooting](#14-troubleshooting)
+15. [Where to go next](#15-where-to-go-next)
 
 ---
 
 ## 1. What you're building
 
-Three pages:
+Four main pages:
 
-- **Find** (`/`) — a map of the UK with a search box. Search "Incognito, Winchester", click the result, a pin drops, and you save it.
-- **Places to Go** (`/to-go`) — everything you've saved but not yet visited, shown as a list and as pins on a map.
-- **Visited** (`/visited`) — the same, for places you've marked as visited.
+- **Setup/Home** (`/`) — Set your home postcode (e.g., SO50 9EA for Eastleigh). This is stored and used as the starting point for all journeys.
+- **Plan a Trip** (`/plan`) — Search for a destination in the UK, get a map view, and see **all travel options with costs**:
+  - 🚗 **Car**: fuel cost estimate + optional parking
+  - 🚂 **Train**: live Trainline prices
+  - 🚌 **Bus**: operator, duration, cost
+  - 🚕 **Uber**: estimated fare
+  - Best option highlighted
+- **My Trips** (`/trips`) — saved trip plans showing distance, travel options, and cheapest route. Mark trips as "completed".
+- **Trip History** (`/history`) — completed and past trips for reference.
 
-You can move a place from "to go" to "visited" and back, and delete places you no longer want.
-
-The clever bit that keeps this beginner-friendly: there aren't really two separate systems for "to go" and "visited". There's **one list of places**, and each place has a `status` of either `want` or `visited`. The two pages are just the same data filtered differently.
+**The magic bit:** When a user searches for Lainston House Hotel in Winchester from Eastleigh (SO50 9EA), the app calculates:
+- Distance: ~11 miles
+- Fuel cost for a car: £1.50–£2.00
+- Train cost: pulls live Trainline data
+- Bus cost: pulls TfL or National Express data
+- Uber estimate: calls Uber fare estimate API
+- **Shows all options ranked by price**
 
 ---
 
 ## 2. How the pieces fit together
 
-It helps to know what each tool actually does before you install it.
-
-- **Node.js** lets you run JavaScript outside a browser — on your computer, as a server. It's the engine everything runs on.
-- **Express** is a small framework that makes it easy to say "when someone visits this URL, run this code." Those URL-to-code rules are called **routes**.
-- **EJS** is a templating language. It's HTML with little `<%= %>` tags where you can drop in data. It turns your data into web pages.
-- **PostgreSQL** ("Postgres") is the database — where your saved places actually live, so they're still there after you close the app.
-- **Leaflet** is a JavaScript library that draws an interactive map in the browser. It runs in the user's browser, not on your server.
-- **Nominatim** is a free search service from OpenStreetMap. You give it "Incognito Winchester", it gives you back coordinates (latitude and longitude).
-
-The flow when you save a place:
+### User Journey
 
 ```
-You type a search        →  Browser asks YOUR server  →  Your server asks Nominatim
-   (in the browser)              (/api/search)               (the real search engine)
-                                                                      ↓
-You see pins on the map  ←  Browser draws results     ←  Server passes the answer back
-
-You click "Save"         →  Browser sends the place    →  Server saves it to Postgres
-                              to YOUR server (/places)
+User sets home location (SO50 9EA)
+       ↓
+User searches destination (Lainston House, Winchester)
+       ↓
+Server:
+  ├─ Nominatim: geocode destination → lat/lon
+  ├─ Google Distance Matrix: get distance & duration (car)
+  ├─ Trainline API: fetch live train prices & times
+  ├─ TfL / Bus API: fetch bus routes & fares
+  ├─ Uber API: estimate ride fare
+  └─ Calculate fuel cost (distance × fuel efficiency)
+       ↓
+Browser displays:
+  ├─ Map showing route
+  ├─ Card for each option (car, train, bus, uber)
+  ├─ Price, duration, and one-click booking/info link
+  └─ "Cheapest" badge on best option
+       ↓
+User saves trip → stored in PostgreSQL with:
+  ├─ Origin (postcode), destination, distance
+  ├─ All cost options snapshot
+  ├─ Status (planned/completed/cancelled)
+  └─ Timestamp
 ```
 
-Notice your server sits in the middle of the search. Why not have the browser ask Nominatim directly? Two reasons: Nominatim asks every app to identify itself with a "User-Agent" label (browsers can't set that, but a server can), and routing through your own server avoids browser security errors (CORS). You'll see this in the code — it's a useful pattern to learn early.
+### The Tech Stack
+
+- **Node.js & Express** — server that orchestrates all API calls and serves pages
+- **EJS** — HTML templates with dynamic data
+- **PostgreSQL** — stores user profile (home location), saved trips, and history
+- **Leaflet** — interactive map showing route on the browser
+- **Nominatim** — free geocoding (postcode → coordinates)
+- **Google Maps Distance Matrix API** — precise distances and car journey times
+- **Trainline API** (or scraping) — live UK train prices
+- **TfL & Bus APIs** — UK bus routes and fares
+- **Uber API** — fare estimates for ride-sharing
+- **Tailwind CSS** — modern UI
 
 ---
 
-## 3. Install the tools
+## 3. Required APIs and Data Sources
+
+Before building, you'll need API keys for:
+
+| API | Purpose | Cost | Sign Up |
+|-----|---------|------|---------|
+| **Google Maps Distance Matrix** | car distance, duration | ~$5/1000 calls | [Google Cloud Console](https://cloud.google.com/maps-platform) |
+| **Trainline** | UK train prices | Free or subscription | [Trainline Developer](https://www.thetrainline.com) or scrape |
+| **TfL Unified API** | London bus, tube fares | Free | [TfL Developer Portal](https://tfl.gov.uk/info-for-developers/) |
+| **Uber** | ride fare estimates | Free tier available | [Uber API](https://developer.uber.com) |
+| **Nominatim** | geocoding (postcode search) | Free | OpenStreetMap (no key needed) |
+| **OpenWeather** (optional) | weather en route | Free tier | [OpenWeather](https://openweathermap.org/api) |
+
+> **Tip:** Start with free APIs (Nominatim, TfL, basic Uber). Paid APIs can be added once MVP works.
+
+---
+
+## 4. Install the tools
 
 You need three things installed: **Node.js**, **PostgreSQL**, and **VS Code**.
 
-### 3a. Node.js
+### 4a. Node.js
 
 Go to <https://nodejs.org> and download the **LTS** version. Install it with all the default options.
-
-> **Important:** this guide uses a feature (`fetch`) that needs **Node 18 or newer**. The current LTS is well past that, so you're fine as long as you don't have an ancient version installed.
-
-Check it worked. Open a terminal (on Windows, search for "PowerShell"; on Mac, open "Terminal") and run:
-
-```bash
-node --version
-```
-
-You should see something like `v22.x.x`. If you get "command not found", restart your terminal, or restart your computer, and try again.
-
-### 3b. PostgreSQL
-
-Go to <https://www.postgresql.org/download/> and pick your operating system.
-
-- **Windows:** download the installer from EDB. During setup it will ask you to set a password for the default `postgres` user — **write this password down**, you'll need it. Accept the default port (`5432`). The installer includes a tool called **pgAdmin**, a visual way to manage your database.
-- **Mac:** the easiest route is <https://postgresapp.com> — download it, drag it to Applications, open it, and click "Initialize". That's it.
-
-Check it worked:
-
-```bash
-psql --version
-```
 
 You should see something like `psql (PostgreSQL) 17.x`. (On Windows, if `psql` isn't found, you can use the "SQL Shell (psql)" app the installer added to your Start menu instead.)
 

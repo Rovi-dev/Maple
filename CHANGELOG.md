@@ -447,14 +447,186 @@ For now, CDN is perfect.
 
 ---
 
-## Next Steps
+---
 
-- [ ] Create `views/index.ejs` (Find page with map + search)
-- [ ] Create `views/list.ejs` (Places to Go & Visited pages)
-- [ ] Implement database layer (`.env` + `db.js`)
-- [ ] Create browser JavaScript (`public/js/map.js`, `public/js/list-map.js`)
+## Session 6 — Find Page (index.ejs) with Search & Map UI
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **Created `views/pages/` Folder Structure**
+Updated file structure:
+```
+Maple/
+├── views/
+│   ├── partials/          (head.ejs, footer.ejs)
+│   └── pages/             (NEW! for full page templates)
+│       └── index.ejs      (Find page)
+│       └── list.ejs       (to create)
+```
+
+**Why `pages/` subfolder?**
+- Separates full pages from reusable partials
+- Cleaner organization as app grows
+- Common convention: `pages/` for full templates, `partials/` for fragments
+
+#### 2. **Created `views/pages/index.ejs` (Find Page)**
+
+Complete Find page with:
+
+```html
+<%- include('../partials/head') %>
+
+<!-- Search Section -->
+<h1 class="text-4xl font-bold">Find a Place</h1>
+<p class="text-gray-600">Search for somewhere in the UK, click a result, and save it to your list.</p>
+
+<!-- Search Bar -->
+<div class="flex gap-3">
+  <input type="text" id="search-input" placeholder="e.g. Incognito, Winchester" />
+  <button id="search-btn">Search</button>
+</div>
+
+<!-- Search Results -->
+<div id="results"></div>
+
+<!-- Map -->
+<div id="map" class="w-full h-96 rounded-lg border"></div>
+
+<!-- Save Panel (hidden until a place is selected) -->
+<div id="save-panel" class="hidden bg-white p-6 rounded-lg">
+  <h3>Save this place</h3>
+  <p id="selected-name"></p>
+  
+  <label>Category (optional)
+    <input type="text" id="category-input" />
+  </label>
+  
+  <label>Notes (optional)
+    <textarea id="notes-input" rows="3"></textarea>
+  </label>
+  
+  <button id="save-btn">Save to "Places to Go"</button>
+  <p id="save-msg"></p>
+</div>
+
+<!-- JavaScript for search and map -->
+<script src="/js/map.js"></script>
+
+<%- include('../partials/footer') %>
+```
+
+**Key elements:**
+- **Search input** — user types place name
+- **Search button** — triggers API call to `/api/search`
+- **Results div** — displays clickable search results
+- **Map div** — `id="map"` with height `h-96` (Leaflet will render here)
+- **Save panel** — hidden by default with `hidden` class, revealed when user clicks a result
+- **Category/Notes inputs** — optional metadata for the place
+- **Save button** — POSTs the place to `/places` API
+- **Map script** — `<script src="/js/map.js">` loads client-side JavaScript later
+
+**Tailwind classes used:**
+- `text-4xl font-bold` — large heading
+- `text-gray-600` — muted text
+- `flex gap-3` — flexbox with 3-unit spacing
+- `w-full h-96` — full width, 96px height
+- `rounded-lg border` — border radius and border
+- `hidden` — display: none (toggled by JS)
+- `p-6` — padding all sides
+- `px-4 py-2` — horizontal/vertical padding
+- `focus:outline-none focus:ring-2 focus:ring-blue-500` — focus states
+
+#### 3. **Updated Routes in `index.js`**
+
+Changed from placeholder `res.send()` to `res.render()`:
+
+```javascript
+// Before (placeholder):
+app.get('/', (req, res) => {
+  res.send('<h1>Find Places — placeholder</h1>...');
+});
+
+// After (renders template):
+app.get('/', (req, res) => {
+  res.render('pages/index', { title: 'Find Places' });
+});
+
+// Same for /to-go and /visited:
+app.get('/to-go', (req, res) => {
+  res.render('pages/list', { title: 'Places to Go', places: [] });
+});
+
+app.get('/visited', (req, res) => {
+  res.render('pages/list', { title: 'Visited', places: [] });
+});
+```
+
+**What changed:**
+- `'pages/index'` — path to template relative to `views/` folder
+- `{ title: 'Find Places' }` — data passed to template (used in `<title>` tag)
+- `places: []` — placeholder for list page (will be real data once DB is connected)
+
+#### 4. **EJS Include Syntax Explained**
+
+```ejs
+<%- include('../partials/head') %>
+```
+
+Breaking it down:
+- `<%- ... %>` — EJS tag that inserts raw HTML (no escaping)
+- `include()` — EJS function to load another template
+- `'../partials/head'` — relative path up one level to partials folder, loads head.ejs
+- No need for `.ejs` extension — EJS adds it automatically
+
+Similarly for footer:
+```ejs
+<%- include('../partials/footer') %>
+```
+
+This renders:
+1. `head.ejs` — opens HTML, adds nav bar
+2. Your page content (search, map, form)
+3. `footer.ejs` — closes HTML tags, loads JS
 
 ---
+
+## Test It Now!
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` — you should see:
+- Maple navigation bar (from head.ejs)
+- Search bar and map placeholder
+- Save panel (hidden)
+- (Map won't work yet — needs JavaScript in `/public/js/map.js`)
+
+---
+
+## Next Steps
+
+- [ ] Create `views/pages/list.ejs` (Places to Go & Visited pages)
+- [ ] Create `/public/js/map.js` (search + map + save logic)
+- [ ] Create `/public/js/list-map.js` (plots pins on list pages)
+- [ ] Create `.env` and `db.js` (database layer)
+
+---
+
+## Key Concepts Learned
+
+1. **Partials** — reusable template fragments (head, footer, nav)
+2. **Pages vs Partials** — pages are full templates, partials are includes
+3. **EJS include syntax** — `<%- include('path/to/file') %>` merges templates
+4. **Route parameters** — `res.render('template', { data })` passes data to templates
+5. **Relative paths** — `../` goes up one level, `./` is current level
+
+---
+
+
 
 
 - [ ] Update `.gitignore` to exclude secrets and dependencies

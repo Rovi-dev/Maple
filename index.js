@@ -23,20 +23,17 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Home / Find page
 app.get('/', (req, res) => {
-  // TODO: replace with `res.render('index')` after creating `views/index.ejs`
-  res.send('<h1>Find Places — placeholder</h1><p>Create `views/index.ejs` to render the full page.</p>');
+  res.render('pages/index', { title: 'Find Places' });
 });
 
 // Places to Go page
 app.get('/to-go', (req, res) => {
-  // TODO: replace with `res.render('list', { title: 'Places to Go', places: [] })`
-  res.send('<h1>Places to Go — placeholder</h1>');
+  res.render('pages/list', { title: 'Places to Go', places: [] });
 });
 
 // Visited page
 app.get('/visited', (req, res) => {
-  // TODO: replace with `res.render('list', { title: 'Visited', places: [] })`
-  res.send('<h1>Visited — placeholder</h1>');
+  res.render('pages/list', { title: 'Visited', places: [] });
 });
 
 // ------------------ Basic API placeholders ------------------

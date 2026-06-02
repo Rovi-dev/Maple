@@ -1,7 +1,7 @@
 {
-  "name": "maple",
+  "name": "maplet",
   "version": "1.0.0",
-  "description": "Initial repository for Maple.",
+  "description": "Initial repository for Maplet.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

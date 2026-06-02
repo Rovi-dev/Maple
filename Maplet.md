@@ -1,8 +1,8 @@
-# Building Maple — A Smart Travel Planner & Cost Comparison Tool
+# Building Maplet — A Smart Travel Planner & Cost Comparison Tool
 
 A comprehensive travel planning web app: set your home location (postcode), search for destinations across the UK, and get **real-time cost comparisons** for every viable travel option. Compare costs for car (fuel), train, bus, and ride-sharing (Uber) to make the best travel decision.
 
-**Core Vision:** Users input their home location once. Then, whenever they plan a trip to anywhere in the UK, Maple shows them:
+**Core Vision:** Users input their home location once. Then, whenever they plan a trip to anywhere in the UK, Maplet shows them:
 - **Distance & estimated travel time**
 - **Car:** estimated fuel cost + parking (if available)
 - **Train:** live prices from Trainline API

@@ -2,7 +2,7 @@
  * API Configuration & Affiliate Links
  * 
  * All APIs listed here are FREE tier compatible.
- * Affiliate links enable future monetization when users book through Maple.
+ * Affiliate links enable future monetization when users book through Maplet.
  */
 
 module.exports = {
@@ -203,7 +203,7 @@ module.exports = {
   },
 
   AFFILIATE_REVENUE_MODEL: {
-    description: 'Earn commission when users book through Maple',
+    description: 'Earn commission when users book through Maplet',
     streams: [
       '🚂 Train: 5-10% on Trainline bookings',
       '🚌 Bus: 5-8% on National Express bookings',
@@ -212,6 +212,6 @@ module.exports = {
       '✈️ Flights: Commission via Expedia affiliate',
       '🅿️ Parking: Commission via ParkWhiz',
     ],
-    example: 'User books £50 train ticket → Maple earns £3-5',
+    example: 'User books £50 train ticket → Maplet earns £3-5',
   },
 };

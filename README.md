@@ -1,6 +1,6 @@
-# Maple
+# Maplet
 
-A personal places tracker web app. Search for locations in the UK on an interactive map, save them, and organize them into **Places to Go** and **Visited** lists.
+A smart travel planner & cost comparison tool. Compare all travel options and their costs from your location to any UK destination, powered by multiple APIs and affiliate partnerships.
 
 ## About
 

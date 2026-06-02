@@ -1,4 +1,4 @@
-// index.js — main entry for Maple
+// index.js — main entry for Maplet
 // Sets up Express, basic routes, and starts the server on localhost
 
 require('dotenv').config(); // load environment variables from .env (if present)

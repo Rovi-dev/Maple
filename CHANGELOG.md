@@ -1,6 +1,6 @@
-# Maple Project Changelog
+# Maplet Project Changelog
 
-All significant changes, creations, and modifications to the Maple Places Tracker app are documented here. This file serves as a learning log and development history.
+All significant changes, creations, and modifications to the Maplet travel planner app are documented here. This file serves as a learning log and development history.
 
 ---
 
@@ -95,7 +95,7 @@ June 2, 2026
 - **Action**: Added remote origin and pushed to GitHub
 - **Commands**:
   ```bash
-  git remote add origin https://github.com/Rovi-dev/Maple.git
+  git remote add origin https://github.com/Rovi-dev/Maplet.git
   git branch -M main
   git pull origin main --allow-unrelated-histories
   git push -u origin main
@@ -632,7 +632,7 @@ June 2, 2026
   - 🚕 **Uber**: £18.00 (Uber fare estimate API)
   - 🏆 **Cheapest**: Bus (£4.20)
 
-#### 2. **Updated `Maple.md` Project Description**
+#### 2. **Updated `Maplet.md` Project Description**
 
 **Old pages**:
 - Find, Places to Go, Visited

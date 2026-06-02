@@ -791,6 +791,195 @@ This is **exactly** what real travel/logistics apps do (Google Flights, Skyscann
 
 ---
 
+## Session 8 — Head/Header Separation & Comprehensive API Configuration
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **Refactored Head/Header Structure**
+
+**Problem**: Navigation bar was mixed with HTML styling in `head.ejs`.
+
+**Solution**: Separated into two files:
+
+**`views/partials/head.ejs`** (styling only):
+- DOCTYPE, meta tags, title
+- Tailwind, Bootstrap, Leaflet stylesheets
+- Opens `<body>` tag
+- NO CONTENT
+
+**`views/partials/header.ejs`** (navigation):
+- Updated nav bar with new routes: Home, Plan Trip, My Trips, History
+- Main container wrapper
+- Emoji icon changed to ✈️ (matches travel planner theme)
+
+**Why separate?**
+- **Semantic clarity** — head = styling, header = content
+- **Flexibility** — future pages can have different headers
+- **Reusability** — change header without touching styling
+
+**Usage in templates**:
+```ejs
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+  <!-- Your page content -->
+<%- include('../partials/footer') %>
+```
+
+#### 2. **Created Comprehensive API Configuration File**
+
+**New file**: `config/apis.js` — centralized API reference with affiliate links
+
+**13+ FREE APIs included**:
+
+```javascript
+// MAPPING & DISTANCE
+NOMINATIM: Free location search (no key needed)
+GOOGLE_MAPS_DISTANCE: 25,000 requests/day free tier
+
+// TRAIN
+TRAINLINE: Live UK train prices + affiliate program
+NATIONAL_RAIL: Alternative rail data
+
+// BUS & PUBLIC TRANSPORT
+TFL_API: London/major cities buses
+NATIONAL_EXPRESS: UK coaches + affiliate
+GO_AHEAD: UK bus operator
+STAGECOACH: Major UK bus routes
+
+// RIDE-SHARING
+UBER_API: Fare estimates + affiliate
+BOLT: European ride-sharing
+
+// FUEL & CAR
+GLOBAL_PETROL_PRICES: Real-time fuel prices (100/month free)
+
+// WEATHER (OPTIONAL)
+OPENWEATHER: Weather forecasts (1000/day free)
+
+// BOOKING & MONETIZATION
+BOOKING_COM: 1-30% commission on hotels
+HOTELS_COM: Hotel affiliate
+EXPEDIA: Multi-travel affiliate
+PARKWHIZ: Parking commission
+```
+
+**Structure of each API entry**:
+```javascript
+{
+  name: 'API Name',
+  description: 'What it does',
+  free: true/false,
+  freeTierLimit: 'e.g., 100 calls/day',
+  setup: 'Sign-up URL',
+  affiliate: 'Affiliate program link (if available)',
+  affiliateDescription: 'Commission structure',
+  docs: 'API documentation URL',
+}
+```
+
+#### 3. **Affiliate Revenue Model (Future Monetization)**
+
+Built into `config/apis.js`:
+
+```javascript
+AFFILIATE_REVENUE_MODEL: {
+  description: 'Earn commission when users book through Maple',
+  streams: [
+    '🚂 Train: 5-10% on Trainline bookings',
+    '🚌 Bus: 5-8% on National Express',
+    '🚕 Uber: Referral bonus per ride',
+    '🏨 Hotel: 1-30% on Booking.com',
+    '✈️ Flights: Expedia affiliate commission',
+    '🅿️ Parking: ParkWhiz commission',
+  ],
+  example: 'User books £50 train → Maple earns £3-5',
+}
+```
+
+**Revenue projection example**:
+- 100 users/month
+- Avg trip costs £40
+- Avg commission 5%
+- Monthly revenue: £200+
+
+#### 4. **Implementation Phases Documented**
+
+**Phase 1 (MVP - Current)**:
+```javascript
+apis: ['NOMINATIM', 'GOOGLE_MAPS_DISTANCE', 'TRAINLINE', 'TFL_API', 'UBER_API'],
+affiliates: [],
+timeframe: 'Weeks 1-4',
+```
+
+**Phase 2 (Monetization)**:
+```javascript
+apis: ['Phase 1 + GLOBAL_PETROL_PRICES, NATIONAL_EXPRESS, BOLT'],
+affiliates: ['TRAINLINE', 'NATIONAL_EXPRESS', 'UBER', 'BOOKING_COM'],
+timeframe: 'Weeks 5-8',
+```
+
+**Phase 3 (Full Features)**:
+```javascript
+apis: ['All Phase 2 + OPENWEATHER, PARKWHIZ'],
+affiliates: ['All Phase 2 + HOTELS_COM, EXPEDIA'],
+timeframe: 'Weeks 9+',
+```
+
+#### 5. **Updated `pages/index.ejs`**
+
+- Added `<%- include('../partials/header') %>` after head
+- Updated heading: "Plan Your Trip"
+- Updated description: "Compare ALL travel options and costs"
+- Matches new travel planner vision
+
+---
+
+## File Structure Update
+
+```
+Maple/
+├── views/
+│   ├── partials/
+│   │   ├── head.ejs         ← styling only (meta, scripts, stylesheets)
+│   │   ├── header.ejs       ← navigation bar (NEW)
+│   │   └── footer.ejs       ← closing tags
+│   └── pages/
+│       └── index.ejs        ← includes head + header
+├── config/
+│   └── apis.js              ← API config + affiliate links (NEW)
+├── index.js
+├── package.json
+└── ...
+```
+
+---
+
+## Key Concepts
+
+1. **Semantic Separation** — head handles `<head>` styling, header handles navigation
+2. **Configuration as Documentation** — `config/apis.js` teaches API integration while providing working reference
+3. **Phased Implementation** — MVP doesn't need every API; add strategically as you scale
+4. **Affiliate-First Thinking** — monetization planned from day 1 (best practice for SaaS)
+5. **Free Tier Optimization** — all Phase 1 APIs have generous free tiers (costs $0 to start)
+
+---
+
+## Next Session
+
+- [ ] Create `pages/plan.ejs` (trip search & cost display)
+- [ ] Create `pages/trips.ejs` and `pages/history.ejs`
+- [ ] Implement `/api/calculate-costs` endpoint
+- [ ] Start Google Maps Distance Matrix integration
+- [ ] Build cost calculation engine (fuel, duration estimation)
+- [ ] Create `.env` file with API keys structure
+
+---
+
+
+
 
 
 

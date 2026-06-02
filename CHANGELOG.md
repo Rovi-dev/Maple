@@ -320,14 +320,143 @@ No build process needed — Tailwind loads from CDN. Great for rapid prototyping
 
 ---
 
-## Next Session
+---
 
-- [ ] Create view templates with Tailwind classes
-- [ ] Choose CDN vs Build process
-- [ ] Create `.env` file
-- [ ] Create `db.js` for PostgreSQL connection
+## Session 5 — Header & Footer Partials
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **Created `views/partials/head.ejs`**
+
+This is the opening part of every page template. It includes:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title : 'Maple - Places Tracker' %></title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Leaflet (map library) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <!-- Navigation Bar (Tailwind) -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="/" class="text-2xl font-bold text-blue-600">📍 Maple</a>
+      <div class="flex gap-6">
+        <a href="/">Find</a>
+        <a href="/to-go">Places to Go</a>
+        <a href="/visited">Visited</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-6xl mx-auto px-4 py-8">
+```
+
+**What's included:**
+- **Meta tags** — charset, viewport (mobile responsive), page title
+- **Tailwind CDN** — utility CSS for styling
+- **Bootstrap CSS & JS** — component library (modals, buttons, dropdowns)
+- **Leaflet** — interactive map library (CSS + JS)
+- **Navigation bar** — styled with Tailwind, links to all 3 pages
+- **Main container** — `max-w-6xl` limits width, `mx-auto` centers it, `px-4 py-8` adds padding
+
+**EJS dynamic title**:
+```ejs
+<title><%= typeof title !== 'undefined' ? title : 'Maple - Places Tracker' %></title>
+```
+This checks if a `title` variable was passed from the route. If yes, use it; if no, use default "Maple - Places Tracker".
+
+#### 2. **Created `views/partials/footer.ejs`**
+
+```html
+  </main>
+
+  <!-- Bootstrap JS (for interactive components) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+```
+
+**What it does:**
+- Closes the `<main>` tag opened in head
+- Loads Bootstrap JavaScript (needed for dropdowns, modals, etc.)
+- Closes `</body>` and `</html>` tags
 
 ---
+
+## How to Use These Partials
+
+In any view template, you include them like this:
+
+```ejs
+<%- include('partials/head') %>
+
+<!-- Your page content here -->
+<h1>My Page</h1>
+<p>Content goes here</p>
+
+<%- include('partials/footer') %>
+```
+
+The `<%- include(...) %>` syntax:
+- `<%-` (not `<%=`) means "insert raw HTML" without escaping
+- This pulls in head.ejs, renders it, and inserts the HTML
+
+**Note on title**: When you call `res.render()`, pass the title:
+```javascript
+res.render('index', { title: 'Find Places' });
+```
+Then in the template, it shows up as "Find Places" in the browser tab.
+
+---
+
+## Key CSS Concepts Used in head.ejs
+
+**Tailwind utility classes**:
+- `bg-white` — white background
+- `shadow-sm` — subtle shadow
+- `sticky top-0 z-50` — sticks to top of page, always on top
+- `max-w-6xl mx-auto` — max width, centered
+- `px-4 py-8` — horizontal padding 4 units, vertical padding 8 units
+- `flex justify-between items-center` — flexbox, space-between content, vertically centered
+- `gap-6` — 6 units of gap between flex items
+- `text-2xl font-bold text-blue-600` — size, weight, color
+
+**Why CDN vs Build?**
+- **CDN** (current setup) — fastest to start, no build process, great for development
+- **Build process** — smaller file size for production, better tree-shaking
+
+For now, CDN is perfect.
+
+---
+
+## Next Steps
+
+- [ ] Create `views/index.ejs` (Find page with map + search)
+- [ ] Create `views/list.ejs` (Places to Go & Visited pages)
+- [ ] Implement database layer (`.env` + `db.js`)
+- [ ] Create browser JavaScript (`public/js/map.js`, `public/js/list-map.js`)
+
+---
+
+
 - [ ] Update `.gitignore` to exclude secrets and dependencies
 
 ---

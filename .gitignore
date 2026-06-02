@@ -1,0 +1,7 @@
+# Ignore common files
+node_modules/
+.vscode/
+__pycache__/
+*.pyc
+.env
+.DS_Store

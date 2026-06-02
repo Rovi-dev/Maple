@@ -84,6 +84,55 @@ app.listen(PORT, () => {
 
 ---
 
+## Session 2 — GitHub Setup & Push
+
+### Date
+June 2, 2026
+
+### Changes Made
+
+#### 1. **GitHub Remote Configuration**
+- **Action**: Added remote origin and pushed to GitHub
+- **Commands**:
+  ```bash
+  git remote add origin https://github.com/Rovi-dev/Maple.git
+  git branch -M main
+  git pull origin main --allow-unrelated-histories
+  git push -u origin main
+  ```
+
+**What happened**:
+- GitHub already had a `README.md` (likely generated when you created the repo)
+- Conflict resolution: merged both README descriptions
+- Local repo is now connected to remote; all commits are pushed
+
+#### 2. **README.md Update**
+- **File**: `README.md`
+- **Action**: Merged GitHub-generated description with local setup info
+- **New content**:
+
+```markdown
+# Maple
+
+A personal places tracker web app. Search for locations in the UK on an interactive map, save them, and organize them into **Places to Go** and **Visited** lists.
+
+## About
+Built with Node.js, Express, EJS, PostgreSQL, and Leaflet. This project teaches full-stack web development from database to browser.
+
+## Getting Started
+npm install
+npm run dev
+```
+
+**Why this matters**:
+- **Quick onboarding** — Anyone cloning the repo knows what it is and how to start
+- **Professional presentation** — GitHub README is the first thing visitors see
+
+**Key Concept - Git Conflicts**:
+When two branches have different changes to the same line, git can't auto-merge. You have to manually pick which version to keep (or combine them). Always read both sides and make a conscious choice.
+
+---
+
 ## Next Steps (Not Yet Implemented)
 
 - [ ] Create `.env` file with database credentials
@@ -92,15 +141,14 @@ app.listen(PORT, () => {
 - [ ] Implement database queries in each route
 - [ ] Build browser-side JavaScript for map and search (`public/js/map.js`, `public/js/list-map.js`)
 - [ ] Add CSS styling (`public/css/style.css`)
-- [ ] Create `.gitignore` to exclude secrets and dependencies
+- [ ] Update `.gitignore` to exclude secrets and dependencies
 
 ---
 
-## Key Takeaways for This Session
+## Key Takeaways So Far
 
-1. **Middleware order matters** — express middleware runs top-to-bottom, so put `.static()` before routes
-2. **Stubs first** — start with placeholder responses to test the server works, then fill in real logic
-3. **Environment variables** — never hardcode passwords; use `.env` and `dotenv`
-4. **Express is a router** — think of routes as "if the user visits this URL, run this code"
-5. **EJS templating** — server renders HTML with data before sending to browser (unlike pure API + frontend JS approach)
+1. **Git workflow**: local changes → stage → commit → push to remote
+2. **Merge conflicts** — not scary, just manual decisions
+3. **Branch naming** — `master` → `main` is now GitHub's default
+4. **Remote tracking** — `git push -u origin main` links your local branch to the remote
 
